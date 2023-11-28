@@ -77,6 +77,9 @@ int main(int argc, char** argv) {
     case EM_AARCH64:
       printf("ABI: arm64\n");
       break;
+    case EM_LOONGARCH64:
+      printf("ABI: loongarch64\n");
+      break;
     case EM_386:
       printf("ABI: x86\n");
       break;

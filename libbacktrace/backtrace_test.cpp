@@ -1535,6 +1535,10 @@ static void SetUcontextSp(uint64_t sp, ucontext_t* ucontext) {
   ucontext->uc_mcontext.gregs[REG_ESP] = sp;
 #elif defined(__x86_64__)
   ucontext->uc_mcontext.gregs[REG_RSP] = sp;
+#elif defined(__loongarch__)
+  ASSERT_EQ(sizeof(ucontext_t), sizeof(struct ucontext));
+  ASSERT_EQ(sizeof(mcontext_t), sizeof(struct sigcontext));
+  ucontext->uc_mcontext.__gregs[REG_SP] = sp;  
 #else
   UNUSED(sp);
   UNUSED(ucontext);
@@ -1551,6 +1555,10 @@ static void SetUcontextPc(uint64_t pc, ucontext_t* ucontext) {
   ucontext->uc_mcontext.gregs[REG_EIP] = pc;
 #elif defined(__x86_64__)
   ucontext->uc_mcontext.gregs[REG_RIP] = pc;
+#elif defined(__loongarch__)
+  ASSERT_EQ(sizeof(ucontext_t), sizeof(struct ucontext));
+  ASSERT_EQ(sizeof(mcontext_t), sizeof(struct sigcontext));
+  ucontext->uc_mcontext.__gregs[REG_PC] = pc; 
 #else
   UNUSED(pc);
   UNUSED(ucontext);
@@ -1568,6 +1576,10 @@ static void SetUcontextLr(uint64_t lr, ucontext_t* ucontext) {
   ASSERT_TRUE(lr != 0);
   ASSERT_TRUE(ucontext != nullptr);
 #elif defined(__x86_64__)
+  // The lr is on the stack.
+  ASSERT_TRUE(lr != 0);
+  ASSERT_TRUE(ucontext != nullptr);
+#elif defined(__loongarch__)
   // The lr is on the stack.
   ASSERT_TRUE(lr != 0);
   ASSERT_TRUE(ucontext != nullptr);

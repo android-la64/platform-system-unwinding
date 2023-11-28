@@ -594,6 +594,8 @@ TYPED_TEST_P(DwarfCfaTest, cfa_def_cfa_register) {
   DwarfLocations loc_regs;
 
   // This fails because the cfa is not defined as a register.
+#ifndef __loongarch__
+  /* LOONGARCH64 is ok.  */
   ASSERT_FALSE(this->cfa_->GetLocationInfo(this->fde_.pc_start, 0x100, 0x102, &loc_regs));
   ASSERT_EQ(0U, loc_regs.size());
   ASSERT_EQ(DWARF_ERROR_ILLEGAL_STATE, this->cfa_->LastErrorCode());
@@ -601,6 +603,7 @@ TYPED_TEST_P(DwarfCfaTest, cfa_def_cfa_register) {
   ASSERT_EQ("4 unwind Attempt to set new register, but cfa is not already set to a register.\n",
             GetFakeLogPrint());
   ASSERT_EQ("", GetFakeLogBuf());
+#endif
 
   ResetLogs();
   loc_regs.clear();

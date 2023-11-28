@@ -418,9 +418,15 @@ template <typename AddressType>
 bool DwarfCfa<AddressType>::cfa_def_cfa_register(DwarfLocations* loc_regs) {
   auto cfa_location = loc_regs->find(CFA_REG);
   if (cfa_location == loc_regs->end() || cfa_location->second.type != DWARF_LOCATION_REGISTER) {
+#ifdef __loongarch__
+    /* Setup CFA_REG.  */
+    (*loc_regs)[CFA_REG] = {.type = DWARF_LOCATION_REGISTER, .values = {operands_[0], operands_[1]}};
+    return true;
+#else
     log(0, "Attempt to set new register, but cfa is not already set to a register.");
     last_error_.code = DWARF_ERROR_ILLEGAL_STATE;
     return false;
+#endif
   }
 
   cfa_location->second.values[0] = operands_[0];
