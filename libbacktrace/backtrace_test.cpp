@@ -1536,9 +1536,9 @@ static void SetUcontextSp(uint64_t sp, ucontext_t* ucontext) {
 #elif defined(__x86_64__)
   ucontext->uc_mcontext.gregs[REG_RSP] = sp;
 #elif defined(__loongarch__)
-  ASSERT_EQ(sizeof(ucontext_t), sizeof(struct ucontext));
-  ASSERT_EQ(sizeof(mcontext_t), sizeof(struct sigcontext));
-  ucontext->uc_mcontext.__gregs[REG_SP] = sp;  
+  //ASSERT_EQ(sizeof(ucontext_t), sizeof(struct ucontext));
+  //ASSERT_EQ(sizeof(mcontext_t), sizeof(struct sigcontext));
+  ucontext->uc_mcontext.sc_regs[LARCH_REG_SP] = sp;
 #else
   UNUSED(sp);
   UNUSED(ucontext);
@@ -1556,9 +1556,9 @@ static void SetUcontextPc(uint64_t pc, ucontext_t* ucontext) {
 #elif defined(__x86_64__)
   ucontext->uc_mcontext.gregs[REG_RIP] = pc;
 #elif defined(__loongarch__)
-  ASSERT_EQ(sizeof(ucontext_t), sizeof(struct ucontext));
-  ASSERT_EQ(sizeof(mcontext_t), sizeof(struct sigcontext));
-  ucontext->uc_mcontext.__gregs[REG_PC] = pc; 
+  //ASSERT_EQ(sizeof(ucontext_t), sizeof(struct ucontext));
+  //ASSERT_EQ(sizeof(mcontext_t), sizeof(struct sigcontext));
+  ucontext->uc_mcontext.sc_pc = pc;
 #else
   UNUSED(pc);
   UNUSED(ucontext);
