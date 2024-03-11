@@ -110,7 +110,7 @@ Regs* RegsLoongarch64::CreateFromUcontext(void* ucontext) {
   loongarch64_ucontext_t* loongarch64_ucontext = reinterpret_cast<loongarch64_ucontext_t*>(ucontext);
 
   RegsLoongarch64* regs = new RegsLoongarch64();
-  memcpy(regs->RawData(), &loongarch64_ucontext->uc_mcontext.regs[0], LOONGARCH64_REG_MAX * sizeof(uint64_t));
+  memcpy(regs->RawData(), &loongarch64_ucontext->uc_mcontext.sc_regs[0], LOONGARCH64_REG_MAX * sizeof(uint64_t));
   return regs;
 }
 
@@ -123,17 +123,29 @@ bool RegsLoongarch64::StepIfSignalHandler(uint64_t elf_offset, Elf* elf, Memory*
     return false;
   }
   // Look for the kernel sigreturn function.
-  // __kernel_rt_sigreturn:
-  // li a7, __NR_rt_sigreturn
-  // scall
+  // __vdso_rt_sigreturn:
 
-  const uint8_t li_scall[] = {0x93, 0x08, 0xb0, 0x08, 0x73, 0x00, 0x00, 0x00};
-  if (memcmp(&data, &li_scall, 8) != 0) {
+  // 0x03822c0b li a7,0x8b
+  // 0x002b0000 syscall 0
+  if (data != 0x002b000003822c0bULL) {
     return false;
   }
 
-  // SP + sizeof(siginfo_t) + uc_mcontext offset + PC offset.
-  if (!process_memory->ReadFully(regs_[LOONGARCH64_REG_SP] + 0x80 + 0xb0 + 0x00, regs_.data(),
+  // In the signal trampoline frame, sp points to an rt_sigframe[1], which is:
+  //  - 16-byte arg save space for mips compatible
+  //  - 8-byte pad
+  //  - 128-byte siginfo struct
+  //  - 8-byte alignment
+  //  - ucontext_t struct:
+  //     - 8-byte long (__uc_flags)
+  //     - 8-byte pointer (*uc_link)
+  //     - 24-byte uc_stack
+  //     - 24-byte alignment
+  //     - struct sigcontext uc_mcontext
+  // [1]
+  // https://github.com/torvalds/linux/blob/master/arch/loongarch/kernel/signal.c
+  uint32_t kOffsetSpToSigcontext = 16 + 8 + 128 + 8 + 8 + 8 + 24 + 24;
+  if (!process_memory->ReadFully(regs_[LOONGARCH64_REG_SP] + kOffsetSpToSigcontext, regs_.data(),
                                  sizeof(uint64_t) * (LOONGARCH64_REG_MAX))) {
     return false;
   }

@@ -138,7 +138,7 @@ TEST_F(RegsStepIfSignalHandlerTest, loongarch64_step_if_signal_handler) {
   regs[LOONGARCH64_REG_PC] = 0x8000;
   regs[LOONGARCH64_REG_SP] = addr;
 
-  elf_memory_->SetData64(0x8000, 0x0000007308b00893ULL);
+  elf_memory_->SetData64(0x8000, 0x002b000003822c0bULL);
 
   for (uint64_t index = 0; index <= 100; index++) {
     process_memory_.SetData64(addr + index * 8, index * 0x10);

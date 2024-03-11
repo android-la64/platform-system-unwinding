@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright (C) 2017 The Android Open Source Project
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,59 +31,34 @@
 
 #include <stdint.h>
 
-#include <unwindstack/MachineLoongarch64.h>
+#include <unwindstack/MachineMips64.h>
 
 namespace unwindstack {
 
-struct __loongarch___mc_f_ext_state {
-  unsigned int __f[32];
-  unsigned int __fcsr;
-};
-
-struct __loongarch___mc_d_ext_state {
-  unsigned long long int __f[32];
-  unsigned int __fcsr;
-};
-
-struct __loongarch___mc_q_ext_state {
-  unsigned long long int __f[64] __attribute__ ((__aligned__ (16)));
-  unsigned int __fcsr;
-  /* Reserved for expansion of sigcontext structure.  Currently zeroed
-     upon signal, and must be zero upon sigreturn.  */
-  unsigned int __glibc_reserved[3];
-};
-
-union __loongarch___mc_fp_state {
-  struct __loongarch___mc_f_ext_state __f;
-  struct __loongarch___mc_d_ext_state __d;
-  struct __loongarch___mc_q_ext_state __q;
-};
-
 struct loongarch64_stack_t {
   uint64_t ss_sp;    // void __user*
-  int32_t ss_flags;  // int
   uint64_t ss_size;  // size_t
-};
-
-struct loongarch64_sigset_t {
-  uint64_t sig;  // unsigned long
+  int32_t ss_flags;  // int
 };
 
 struct loongarch64_mcontext_t {
-  uint64_t regs[LOONGARCH64_REG_MAX];  // __u64
-  union  __loongarch___mc_fp_state __fpregs;
+  uint64_t sc_pc;
+  uint64_t sc_regs[32];
+  uint32_t sc_flags;
+  uint32_t sc_fcsr;
+  uint32_t sc_vcsr;
+  uint64_t sc_fcc;
+  uint64_t sc_scr[4];
+  uint64_t sc_fpregs[32] __attribute__((aligned(32)));
+  // Nothing else is used, so don't define it.
 };
 
 struct loongarch64_ucontext_t {
   uint64_t uc_flags;  // unsigned long
   uint64_t uc_link;   // struct ucontext*
   loongarch64_stack_t uc_stack;
-  loongarch64_sigset_t uc_sigmask;
-  // The kernel adds extra padding after uc_sigmask to match glibc sigset_t on LOONGARCH64.
-  char __glibc_reserved[1024 / 8 - sizeof (sigset_t)];
-  // The full structure requires 16 byte alignment, but our partial structure
-  // doesn't, so force the alignment.
-  loongarch64_mcontext_t uc_mcontext __attribute__((aligned(16)));
+  loongarch64_mcontext_t uc_mcontext;
+  // Nothing else is used, so don't define it.
 };
 
 }  // namespace unwindstack
