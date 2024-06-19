@@ -30,9 +30,13 @@
 #define _LIBUNWINDSTACK_USER_LOONGARCH64_H
 
 namespace unwindstack {
+enum LOONGARCH64UserReg : uint16_t {
+  LOONGARCH_EF_R0 = 0,
+  LOONGARCH_EF_CSR_ERA = 32,
+};
 
 struct loongarch64_user_regs {
-  uint64_t regs[32];
+  uint64_t regs[33];
 };
 
 }  // namespace unwindstack
