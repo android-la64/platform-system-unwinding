@@ -31,12 +31,11 @@
 
 namespace unwindstack {
 enum LOONGARCH64UserReg : uint16_t {
-  LOONGARCH_EF_R0 = 0,
-  LOONGARCH_EF_CSR_ERA = 32,
+  LOONGARCH_EF_PC = 0,
 };
 
 struct loongarch64_user_regs {
-  uint64_t regs[33];
+  uint64_t regs[32];
 };
 
 }  // namespace unwindstack

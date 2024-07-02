@@ -63,7 +63,8 @@ bool RegsLoongarch64::SetPcFromReturnAddress(Memory*) {
 }
 
 void RegsLoongarch64::IterateRegisters(std::function<void(const char*, uint64_t)> fn) {
-  fn("zero", regs_[LOONGARCH64_REG_R0]);
+  //fn("zero", regs_[LOONGARCH64_REG_R0]);
+  fn("pc", regs_[LOONGARCH64_REG_PC]);
   fn("ra", regs_[LOONGARCH64_REG_RA]);
   fn("tp", regs_[LOONGARCH64_REG_R2]);
   fn("sp", regs_[LOONGARCH64_REG_SP]);
@@ -95,7 +96,6 @@ void RegsLoongarch64::IterateRegisters(std::function<void(const char*, uint64_t)
   fn("r29", regs_[LOONGARCH64_REG_R29]);
   fn("r30", regs_[LOONGARCH64_REG_R30]);
   fn("r31", regs_[LOONGARCH64_REG_R31]);
-  fn("pc", regs_[LOONGARCH64_REG_PC]);
 }
 
 Regs* RegsLoongarch64::Read(void* remote_data) {
@@ -104,7 +104,7 @@ Regs* RegsLoongarch64::Read(void* remote_data) {
   RegsLoongarch64* regs = new RegsLoongarch64();
   uint64_t* reg_data = reinterpret_cast<uint64_t*>(regs->RawData());
   memcpy(regs->RawData(), &user->regs[0], (LOONGARCH64_REG_MAX - 1) * sizeof(uint64_t));
-  reg_data[LOONGARCH64_REG_PC] = user->regs[LOONGARCH_EF_CSR_ERA];
+  reg_data[LOONGARCH64_REG_PC] = user->regs[LOONGARCH_EF_PC];
   return regs;
 }
 
