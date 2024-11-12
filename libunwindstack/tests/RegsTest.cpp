@@ -23,10 +23,12 @@
 
 #include <unwindstack/Elf.h>
 #include <unwindstack/ElfInterface.h>
+#include <unwindstack/MachineLoongarch64.h>
 #include <unwindstack/MachineRiscv64.h>
 #include <unwindstack/MapInfo.h>
 #include <unwindstack/RegsArm.h>
 #include <unwindstack/RegsArm64.h>
+#include <unwindstack/RegsLoongarch64.h>
 #include <unwindstack/RegsRiscv64.h>
 #include <unwindstack/RegsX86.h>
 #include <unwindstack/RegsX86_64.h>
@@ -243,6 +245,10 @@ TEST_F(RegsDeathTest, riscv_get_vlenb) {
   ASSERT_DEATH(regs.GetVlenbFromLocal(), "");
   ASSERT_DEATH(regs.GetVlenbFromRemote(0), "");
 }
+#endif
+
+#if defined(__loongarch64)
+// TODO
 #endif
 
 TEST_F(RegsTest, x86_verify_sp_pc) {

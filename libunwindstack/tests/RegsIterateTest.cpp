@@ -29,12 +29,14 @@
 #include <unwindstack/MachineRiscv64.h>
 #include <unwindstack/MachineX86.h>
 #include <unwindstack/MachineX86_64.h>
+#include <unwindstack/MachineLoongarch64.h>
 #include <unwindstack/MapInfo.h>
 #include <unwindstack/RegsArm.h>
 #include <unwindstack/RegsArm64.h>
 #include <unwindstack/RegsRiscv64.h>
 #include <unwindstack/RegsX86.h>
 #include <unwindstack/RegsX86_64.h>
+#include <unwindstack/RegsLoongarch64.h>
 
 namespace unwindstack {
 

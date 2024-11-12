@@ -29,6 +29,10 @@
 #include <unwindstack/Memory.h>
 #include <unwindstack/SharedString.h>
 
+#if !defined(EM_LOONGARCH64)
+#define EM_LOONGARCH64 258
+#endif
+
 namespace unwindstack {
 
 // Forward declaration.

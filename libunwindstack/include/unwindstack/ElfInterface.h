@@ -140,6 +140,8 @@ class ElfInterface {
   template <typename EhdrType, typename ShdrType, typename NhdrType>
   static std::string ReadBuildIDFromMemory(Memory* memory);
 
+  uint64_t GetVirtAddrFromOffset(uint64_t);
+
  protected:
   virtual void HandleUnknownType(uint32_t, uint64_t, uint64_t) {}
 

@@ -80,6 +80,9 @@ void DoUnwind(pid_t pid) {
     case unwindstack::ARCH_RISCV64:
       printf("riscv64");
       break;
+    case unwindstack::ARCH_LOONGARCH64:
+      printf("loongarch64");
+      break;
     default:
       printf("unknown\n");
       return;

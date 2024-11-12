@@ -317,6 +317,8 @@ ElfInterface* Elf::CreateInterfaceFromMemory(std::shared_ptr<Memory>& memory) {
       arch_ = ARCH_X86_64;
     } else if (e_machine == EM_RISCV) {
       arch_ = ARCH_RISCV64;
+    } else if (e_machine == EM_LOONGARCH64) {
+      arch_ = ARCH_LOONGARCH64;
     } else {
       // Unsupported.
       return nullptr;

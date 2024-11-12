@@ -31,6 +31,7 @@
 #include <unwindstack/Regs.h>
 #include <unwindstack/RegsArm.h>
 #include <unwindstack/RegsArm64.h>
+#include <unwindstack/RegsLoongarch64.h>
 #include <unwindstack/RegsRiscv64.h>
 #include <unwindstack/RegsX86.h>
 #include <unwindstack/RegsX86_64.h>
@@ -1521,6 +1522,8 @@ static std::string ArchToString(ArchEnum arch) {
     return "Arm";
   } else if (arch == ARCH_ARM64) {
     return "Arm64";
+  } else if (arch == ARCH_LOONGARCH64) {
+    return "Loongarch64";
   } else if (arch == ARCH_RISCV64) {
     return "Riscv64";
   } else if (arch == ARCH_X86) {
@@ -1549,6 +1552,11 @@ TEST_F(UnwinderTest, format_frame_by_arch) {
   riscv64->set_pc(0x2300);
   riscv64->set_sp(0x10000);
   reg_list.push_back(riscv64);
+
+  RegsLoongarch64* loongarch64 = new RegsLoongarch64;
+  loongarch64->set_pc(0x2300);
+  loongarch64->set_sp(0x10000);
+  reg_list.push_back(loongarch64);
 
   RegsX86* x86 = new RegsX86;
   x86->set_pc(0x2300);
