@@ -155,6 +155,8 @@ ArchEnum Regs::CurrentArch() {
   return ARCH_X86_64;
 #elif defined(__riscv)
   return ARCH_RISCV64;
+#elif defined(__loongarch64)
+  return ARCH_LOONGARCH64;
 #else
   abort();
 #endif
