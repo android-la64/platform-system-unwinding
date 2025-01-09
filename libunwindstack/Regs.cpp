@@ -45,8 +45,8 @@ namespace unwindstack {
 // The largest user structure.
 // constexpr size_t MAX_USER_REGS_SIZE = sizeof(mips64_user_regs) + 10;
 static constexpr size_t kMaxUserRegsSize = std::max(
-    sizeof(arm_user_regs),
-    std::max(sizeof(arm64_user_regs), std::max(sizeof(x86_user_regs), sizeof(x86_64_user_regs))));
+    sizeof(arm_user_regs), std::max(sizeof(loongarch64_user_regs),
+    std::max(sizeof(arm64_user_regs), std::max(sizeof(x86_user_regs), sizeof(x86_64_user_regs)))));
 
 // This function assumes that reg_data is already aligned to a 64 bit value.
 // If not this could crash with an unaligned access.
