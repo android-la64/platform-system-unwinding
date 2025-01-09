@@ -31,8 +31,27 @@
 
 namespace unwindstack {
 enum LOONGARCH64UserReg : uint16_t {
-  LOONGARCH_EF_PC = 0,
+  LOONGARCH_EF_PC = 1,
 };
+
+/* from kernel arch/loongarch/include/elf.h
+ * General purpose have the following registers:
+ *  Register    Number
+ *  GPRs        32
+ *  ORIG_A0     1
+ *  ERA     1
+ *  BADVADDR    1
+ *  CRMD        1
+ *  PRMD        1
+ *  EUEN        1
+ *  ECFG        1
+ *  ESTAT       1
+ *  Reserved    5
+ *  ptrace(PTRACE_GETREGSET, pid, NT_PRSTATUS, ...) will return this 45 dwords
+ *  in loongarch kernel(at least for 6.6 ABI2.0)
+ *  pad[1] is ERA, we take this as user PC
+ */ 
+#define ELF_NGREG   45
 
 struct loongarch64_user_regs {
   uint64_t regs[32];

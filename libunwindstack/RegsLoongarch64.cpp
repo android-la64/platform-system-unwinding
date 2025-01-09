@@ -103,8 +103,8 @@ Regs* RegsLoongarch64::Read(void* remote_data) {
 
   RegsLoongarch64* regs = new RegsLoongarch64();
   uint64_t* reg_data = reinterpret_cast<uint64_t*>(regs->RawData());
-  memcpy(regs->RawData(), &user->regs[0], (LOONGARCH64_REG_MAX - 1) * sizeof(uint64_t));
-  reg_data[LOONGARCH64_REG_PC] = user->regs[LOONGARCH_EF_PC];
+  memcpy((void*)(reg_data + 1), &user->regs[0], (LOONGARCH64_REG_MAX - 1) * sizeof(uint64_t));
+  reg_data[LOONGARCH64_REG_PC] = user->pad[LOONGARCH_EF_PC];
   return regs;
 }
 
@@ -112,8 +112,7 @@ Regs* RegsLoongarch64::CreateFromUcontext(void* ucontext) {
   loongarch64_ucontext_t* loongarch64_ucontext = reinterpret_cast<loongarch64_ucontext_t*>(ucontext);
 
   RegsLoongarch64* regs = new RegsLoongarch64();
-  memcpy(regs->RawData(), &loongarch64_ucontext->uc_mcontext.sc_regs[0], (LOONGARCH64_REG_MAX - 1) * sizeof(uint64_t));
-  (*regs)[LOONGARCH64_REG_PC] = loongarch64_ucontext->uc_mcontext.sc_pc;
+  memcpy(regs->RawData(), &loongarch64_ucontext->uc_mcontext.sc_pc, LOONGARCH64_REG_MAX * sizeof(uint64_t));
   return regs;
 }
 
