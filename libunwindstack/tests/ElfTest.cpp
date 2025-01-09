@@ -237,7 +237,7 @@ TEST_F(ElfTest, elf_riscv64) {
 }
 
 TEST_F(ElfTest, elf_loongarch64) {
-  Elf elf(memory_);
+  Elf elf(elf_memory_);
 
   InitElf64(EM_LOONGARCH64);
 
