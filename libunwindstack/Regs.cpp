@@ -115,6 +115,8 @@ ArchEnum Regs::RemoteGetArch(pid_t pid, ErrorCode* error_code) {
       return ARCH_ARM64;
     case sizeof(riscv64_user_regs):
       return ARCH_RISCV64;
+    case sizeof(loongarch64_user_regs):
+      return ARCH_LOONGARCH64;
   }
 
   Log::Error("No matching size of user regs structure for pid %d: size %zu", pid, io.iov_len);
