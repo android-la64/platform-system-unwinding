@@ -248,7 +248,14 @@ TEST_F(RegsDeathTest, riscv_get_vlenb) {
 #endif
 
 #if defined(__loongarch64)
-// TODO
+TEST_F(RegsTest, loongarch64_verify_sp_pc) {
+  RegsLoongarch64 loongarch64;
+  uint64_t* regs = reinterpret_cast<uint64_t*>(loongarch64.RawData());
+  regs[3] = 0x212340000ULL;
+  regs[0] = 0x1abcd0000ULL;
+  EXPECT_EQ(0x212340000U, loongarch64.sp());
+  EXPECT_EQ(0x1abcd0000U, loongarch64.pc());
+}
 #endif
 
 TEST_F(RegsTest, x86_verify_sp_pc) {
