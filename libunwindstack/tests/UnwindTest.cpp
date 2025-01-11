@@ -78,7 +78,7 @@ static std::vector<const char*> kFunctionSignalOrder{"OuterFunction",        "Mi
                                                      "InnerFunction",        "SignalOuterFunction",
                                                      "SignalMiddleFunction", "SignalInnerFunction"};
 
-static void SignalHandler(int sig, siginfo_t* info, void* sigcontext) {
+static void SignalHandler(int, siginfo_t*, void* sigcontext) {
   g_ucontext = reinterpret_cast<uintptr_t>(sigcontext);
   while (!g_finish) {
   }
@@ -101,7 +101,7 @@ extern "C" void SignalOuterFunction() {
   SignalMiddleFunction();
 }
 
-static void SignalCallerHandler(int sig, siginfo_t* info, void* context) {
+static void SignalCallerHandler(int, siginfo_t*, void*) {
   SignalOuterFunction();
 }
 
