@@ -1584,6 +1584,7 @@ TEST_F(UnwinderTest, format_frame_by_arch) {
       case ARCH_ARM64:
       case ARCH_X86_64:
       case ARCH_RISCV64:
+      case ARCH_LOONGARCH64:
         expected = "  #00 pc 0000000000001300  /system/fake/libc.so (Frame0+10)";
         break;
       default:
