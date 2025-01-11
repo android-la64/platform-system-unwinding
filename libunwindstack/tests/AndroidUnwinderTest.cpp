@@ -40,6 +40,7 @@
 #include <unwindstack/MachineRiscv64.h>
 #include <unwindstack/MachineX86.h>
 #include <unwindstack/MachineX86_64.h>
+#include <unwindstack/MachineLoongarch64.h>
 #include <unwindstack/Regs.h>
 #include <unwindstack/RegsArm.h>
 #include <unwindstack/RegsArm64.h>
@@ -47,11 +48,13 @@
 #include <unwindstack/RegsRiscv64.h>
 #include <unwindstack/RegsX86.h>
 #include <unwindstack/RegsX86_64.h>
+#include <unwindstack/RegsLoongarch64.h>
 #include <unwindstack/UcontextArm.h>
 #include <unwindstack/UcontextArm64.h>
 #include <unwindstack/UcontextRiscv64.h>
 #include <unwindstack/UcontextX86.h>
 #include <unwindstack/UcontextX86_64.h>
+#include <unwindstack/UcontextLoongarch64.h>
 #include <unwindstack/Unwinder.h>
 
 #include "ForkTest.h"
@@ -263,6 +266,15 @@ TEST_F(AndroidUnwinderTest, verify_all_unwind_functions) {
       ucontext = riscv64_ucontext;
       memcpy(&riscv64_ucontext->uc_mcontext.__gregs, regs->RawData(),
              RISCV64_REG_REAL_COUNT * sizeof(uint64_t));
+    } break;
+    case ARCH_LOONGARCH64: {
+      loongarch64_ucontext_t* loongarch64_ucontext =
+          reinterpret_cast<loongarch64_ucontext_t*>(malloc(sizeof(loongarch64_ucontext_t)));
+      ucontext = loongarch64_ucontext;
+      memcpy(&loongarch64_ucontext->uc_mcontext.sc_regs, regs->RawData(),
+             LOONGARCH64_REG_MAX * sizeof(uint64_t));
+      RegsLoongarch64* regs_la64 = static_cast<RegsLoongarch64*>(regs.get());
+      loongarch64_ucontext->uc_mcontext.sc_pc = regs_la64->pc();
     } break;
     default:
       ucontext = nullptr;
