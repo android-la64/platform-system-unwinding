@@ -23,7 +23,7 @@ namespace unwindstack {
 
 enum Loongarch64Reg : uint16_t {
   LOONGARCH64_REG_PC,
-  LOONGARCH64_REG_R0 = 0, //zero
+  LOONGARCH64_REG_R0 = 0,  //zero
   LOONGARCH64_REG_RA,  // RA
   LOONGARCH64_REG_R2,  // TP
   LOONGARCH64_REG_SP,  // SP

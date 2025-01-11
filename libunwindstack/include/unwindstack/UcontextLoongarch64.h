@@ -58,7 +58,7 @@ struct loongarch64_ucontext_t {
   loongarch64_stack_t uc_stack;
   uint64_t uc_sigmask;
   unsigned char pad[120]; // 1024 / 8 - sizeof(sigset_t)
-  loongarch64_mcontext_t uc_mcontext;
+  loongarch64_mcontext_t uc_mcontext __attribute__ ((packed, aligned(16)));
 };
 
 }  // namespace unwindstack

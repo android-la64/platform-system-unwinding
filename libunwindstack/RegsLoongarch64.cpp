@@ -103,7 +103,8 @@ Regs* RegsLoongarch64::Read(void* remote_data) {
 
   RegsLoongarch64* regs = new RegsLoongarch64();
   uint64_t* reg_data = reinterpret_cast<uint64_t*>(regs->RawData());
-  memcpy((void*)(reg_data + 1), &user->regs[0], (LOONGARCH64_REG_MAX - 1) * sizeof(uint64_t));
+  memcpy((void*)reg_data, &user->regs[0], LOONGARCH64_REG_MAX * sizeof(uint64_t));
+  // use the storage of reg zero to store PC
   reg_data[LOONGARCH64_REG_PC] = user->pad[LOONGARCH_EF_PC];
   return regs;
 }
@@ -112,7 +113,9 @@ Regs* RegsLoongarch64::CreateFromUcontext(void* ucontext) {
   loongarch64_ucontext_t* loongarch64_ucontext = reinterpret_cast<loongarch64_ucontext_t*>(ucontext);
 
   RegsLoongarch64* regs = new RegsLoongarch64();
-  memcpy(regs->RawData(), &loongarch64_ucontext->uc_mcontext.sc_pc, LOONGARCH64_REG_MAX * sizeof(uint64_t));
+  uint64_t* reg_data = reinterpret_cast<uint64_t*>(regs->RawData());
+  memcpy((void*)reg_data, &loongarch64_ucontext->uc_mcontext.sc_regs[0], LOONGARCH64_REG_MAX * sizeof(uint64_t));
+  reg_data[LOONGARCH64_REG_PC] = loongarch64_ucontext->uc_mcontext.sc_pc;
   return regs;
 }
 
@@ -132,20 +135,8 @@ bool RegsLoongarch64::StepIfSignalHandler(uint64_t elf_offset, Elf* elf, Memory*
     return false;
   }
 
-  // In the signal trampoline frame, sp points to an rt_sigframe[1], which is:
-  //  - 16-byte arg save space for mips compatible
-  //  - 8-byte pad
-  //  - 128-byte siginfo struct
-  //  - 8-byte alignment
-  //  - ucontext_t struct:
-  //     - 8-byte long (__uc_flags)
-  //     - 8-byte pointer (*uc_link)
-  //     - 24-byte uc_stack
-  //     - 24-byte alignment
-  //     - struct sigcontext uc_mcontext
-  // [1]
-  // https://github.com/torvalds/linux/blob/master/arch/loongarch/kernel/signal.c
-  uint32_t kOffsetSpToSigcontext = 16 + 8 + 128 + 8 + 8 + 8 + 24 + 24;
+  // SP + sizeof(siginfo_t) + uc_mcontext offset
+  uint32_t kOffsetSpToSigcontext = 0x80 + 0xb0;
   if (!process_memory->ReadFully(regs_[LOONGARCH64_REG_SP] + kOffsetSpToSigcontext, regs_.data(),
                                  sizeof(uint64_t) * (LOONGARCH64_REG_MAX))) {
     return false;
