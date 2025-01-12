@@ -166,9 +166,9 @@ TEST_F(RegsStepIfSignalHandlerTest, loongarch64_step_if_signal_handler) {
   }
 
   ASSERT_TRUE(regs.StepIfSignalHandler(0x8000, elf_.get(), &process_memory_));
-  EXPECT_EQ(0x290U, regs[LOONGARCH64_REG_SP]);
+  EXPECT_EQ(0x2a0U, regs[LOONGARCH64_REG_SP]);
   EXPECT_EQ(0x260U, regs[LOONGARCH64_REG_PC]);
-  EXPECT_EQ(0x290U, regs.sp());
+  EXPECT_EQ(0x2a0U, regs.sp());
   EXPECT_EQ(0x260U, regs.pc());
 }
 

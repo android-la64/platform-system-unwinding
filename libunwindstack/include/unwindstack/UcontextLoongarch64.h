@@ -35,8 +35,8 @@ namespace unwindstack {
 
 struct loongarch64_stack_t {
   uint64_t ss_sp;    // void __user*
-  uint64_t ss_size;  // size_t
   int32_t ss_flags;  // int
+  uint64_t ss_size;  // size_t
 };
 
 struct loongarch64_mcontext_t {

@@ -21,9 +21,12 @@
 
 namespace unwindstack {
 
+/* To match with kernel's PERF_REG_LOONGARCH_R*, we don't store REG zero
+   PC is stored in offset 0 instead. Be careful when copy to/from ucontext
+*/
 enum Loongarch64Reg : uint16_t {
   LOONGARCH64_REG_PC,
-  LOONGARCH64_REG_R0 = 0,  //zero
+  LOONGARCH64_REG_R0 = 0,  
   LOONGARCH64_REG_RA,  // RA
   LOONGARCH64_REG_R2,  // TP
   LOONGARCH64_REG_SP,  // SP

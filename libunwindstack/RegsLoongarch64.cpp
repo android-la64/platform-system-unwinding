@@ -99,12 +99,14 @@ void RegsLoongarch64::IterateRegisters(std::function<void(const char*, uint64_t)
 }
 
 Regs* RegsLoongarch64::Read(void* remote_data) {
+  /* this remote data is read via ptrace, the kernel regset is 32 gr + 13 control regs */
   loongarch64_user_regs* user = reinterpret_cast<loongarch64_user_regs*>(remote_data);
 
   RegsLoongarch64* regs = new RegsLoongarch64();
   uint64_t* reg_data = reinterpret_cast<uint64_t*>(regs->RawData());
-  memcpy((void*)reg_data, &user->regs[0], LOONGARCH64_REG_MAX * sizeof(uint64_t));
-  // use the storage of reg zero to store PC
+  memcpy((void*)reg_data, &user->regs, LOONGARCH64_REG_MAX * sizeof(uint64_t));
+  /* overwrite reg zero, we use it to store PC */
+  static_assert(LOONGARCH64_REG_PC == LOONGARCH64_REG_R0, "REG_PC should match REG_R0");
   reg_data[LOONGARCH64_REG_PC] = user->pad[LOONGARCH_EF_PC];
   return regs;
 }
@@ -115,12 +117,15 @@ Regs* RegsLoongarch64::CreateFromUcontext(void* ucontext) {
   RegsLoongarch64* regs = new RegsLoongarch64();
   uint64_t* reg_data = reinterpret_cast<uint64_t*>(regs->RawData());
   memcpy((void*)reg_data, &loongarch64_ucontext->uc_mcontext.sc_regs[0], LOONGARCH64_REG_MAX * sizeof(uint64_t));
+  /* overwrite reg zero, we use it to store PC */
+  static_assert(LOONGARCH64_REG_PC == LOONGARCH64_REG_R0, "REG_PC should match REG_R0");
   reg_data[LOONGARCH64_REG_PC] = loongarch64_ucontext->uc_mcontext.sc_pc;
   return regs;
 }
 
 bool RegsLoongarch64::StepIfSignalHandler(uint64_t elf_offset, Elf* elf, Memory* process_memory) {
   uint64_t data;
+  loongarch64_ucontext_t ucontext;
   // Read from elf memory since it is usually more expensive to read from
   // process memory.
   if (!elf->memory()->ReadFully(elf_offset, &data, sizeof(data))) {
@@ -135,12 +140,29 @@ bool RegsLoongarch64::StepIfSignalHandler(uint64_t elf_offset, Elf* elf, Memory*
     return false;
   }
 
-  // SP + sizeof(siginfo_t) + uc_mcontext offset
+  /* SP + sizeof(siginfo_t) + offset of sigcontext in ucontext
+   * struct rt_sigframe {
+   *     struct siginfo rs_info;
+   *     struct ucontext rs_uctx;
+   * }; // arch/loongarch/kernel/signal.c
+   */
   uint32_t kOffsetSpToSigcontext = 0x80 + 0xb0;
-  if (!process_memory->ReadFully(regs_[LOONGARCH64_REG_SP] + kOffsetSpToSigcontext, regs_.data(),
-                                 sizeof(uint64_t) * (LOONGARCH64_REG_MAX))) {
+  /* in ucontext, reg zero occupy storage, so we have to split the read:
+   * read 32 regs first, then read sc_pc to overwrite reg zero
+   */
+  uint64_t datas[LOONGARCH64_REG_MAX + 1];
+  static_assert(LOONGARCH64_REG_PC == LOONGARCH64_REG_R0, "REG_PC should match REG_R0");
+  static_assert(LOONGARCH64_REG_MAX == 32, "REG_MAX should equal 32");
+  uint64_t* reg_data = reinterpret_cast<uint64_t*>(regs_.data());
+  if (!process_memory->ReadFully(regs_[LOONGARCH64_REG_SP] + kOffsetSpToSigcontext,
+                                 datas, 
+                                 sizeof(uint64_t) * (LOONGARCH64_REG_MAX + 1))) {
     return false;
   }
+  /* read ucontext->sc_pc into regs_.data()[0] */
+  memcpy(reg_data, &datas[1], sizeof(uint64_t) * LOONGARCH64_REG_MAX);
+  /* overwrite reg zero to store sc_pc */
+  reg_data[0]  = datas[0];
   return true;
 }
 

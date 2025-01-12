@@ -271,10 +271,11 @@ TEST_F(AndroidUnwinderTest, verify_all_unwind_functions) {
       loongarch64_ucontext_t* loongarch64_ucontext =
           reinterpret_cast<loongarch64_ucontext_t*>(malloc(sizeof(loongarch64_ucontext_t)));
       ucontext = loongarch64_ucontext;
-      memcpy(&loongarch64_ucontext->uc_mcontext.sc_regs, regs->RawData(),
-             LOONGARCH64_REG_MAX * sizeof(uint64_t));
+      memcpy(&loongarch64_ucontext->uc_mcontext.sc_pc, regs->RawData(), sizeof(uint64_t));
+      memcpy(&loongarch64_ucontext->uc_mcontext.sc_regs[0], regs->RawData(), 
+             32 * sizeof(uint64_t));
+      loongarch64_ucontext->uc_mcontext.sc_regs[0] = 0;
       RegsLoongarch64* regs_la64 = static_cast<RegsLoongarch64*>(regs.get());
-      loongarch64_ucontext->uc_mcontext.sc_pc = regs_la64->pc();
     } break;
     default:
       ucontext = nullptr;
